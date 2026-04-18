@@ -1,5 +1,6 @@
 import argparse
 import cv2
+import math
 import numpy as np
 import matplotlib.pyplot as plt
 import logging
@@ -93,16 +94,18 @@ def main():
         logger.info("Self-consistency mode: Pick two sets of points for parallel lines.")
         picker_l1 = PointPicker("Parallel Line 1")
         l1_points = picker_l1.pick_points(cam_img)
-        logger.info(f"Points for Line 1: {len(l1_points)}")
+        logger.warning(f"Points for Line 1: {len(l1_points)}")
         
         picker_l2 = PointPicker("Parallel Line 2")
         l2_points = picker_l2.pick_points(cam_img)
-        logger.info(f"Points for Line 2: {len(l2_points)}")
+        logger.warning(f"Points for Line 2: {len(l2_points)}")
         
         if len(l1_points) > 1 and len(l2_points) > 1:
             # Create separate densified points to avoid joining them
             dense_l1 = densify_points(l1_points, interval=args.interval)
             dense_l2 = densify_points(l2_points, interval=args.interval)
+
+            logger.warning(f"Densified Line 1 points: {len(dense_l1)}, Line 2 points: {len(dense_l2)}")
             
             # Combine for combined mask and visualization
             dense_line_points = np.vstack((dense_l1, dense_l2))
@@ -113,7 +116,7 @@ def main():
             show_comparison_view(cam_img, line_mask, sat_img, projected_lines)
             
             angle_err, var_err = calculate_parallel_divergence(l1_points, l2_points, camera_params['H'])
-            logger.info(f"Parallel Line Divergence: Angle Error = {float(angle_err):.4f} deg, Width Variance = {float(var_err):.4f}")
+            logger.info(f"Parallel Line Divergence: Angle Error = {float(angle_err):.4f} deg, Width Std Dev = {float(math.sqrt(var_err)):.4f}")
             cv2.waitKey(0)
         else:
             logger.warning("Not enough points for parallel lines.")

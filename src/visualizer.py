@@ -41,17 +41,17 @@ def resize_for_display(img, max_dim=1000):
     return img
 
 def show_comparison_view(cam_img, cam_mask, sat_img, projected_points, max_dim=800):
-    """Show camera mask and its projection on satellite image side-by-side."""
+    """Show camera mask and its projection on satellite image side-by-side with a legend."""
     # 1. Overlay mask on camera image
     cam_view = cam_img.copy()
-    cam_view[cam_mask > 0] = (0, 255, 0)
+    cam_view[cam_mask > 0] = (0, 255, 0) # Green
     
     # 2. Overlay projected points on satellite image
     sat_view = sat_img.copy()
     for p in projected_points:
         x, y = int(round(p[0])), int(round(p[1]))
         if 0 <= x < sat_view.shape[1] and 0 <= y < sat_view.shape[0]:
-            cv2.circle(sat_view, (x, y), 5, (0, 0, 255), -1)
+            cv2.circle(sat_view, (x, y), 5, (0, 0, 255), -1) # Red
             
     # Resize to match heights for side-by-side
     h_cam, w_cam = cam_view.shape[:2]
@@ -65,6 +65,17 @@ def show_comparison_view(cam_img, cam_mask, sat_img, projected_points, max_dim=8
     sat_resized = cv2.resize(sat_view, (int(w_sat * scale_sat), target_h))
     
     comparison = np.hstack((cam_resized, sat_resized))
+    
+    # Add Legend Box
+    overlay = comparison.copy()
+    cv2.rectangle(overlay, (10, 10), (280, 80), (0, 0, 0), -1)
+    cv2.addWeighted(overlay, 0.6, comparison, 0.4, 0, comparison)
+    
+    # Add Legend Text
+    cv2.putText(comparison, "Legend:", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+    cv2.putText(comparison, "Green: Camera Mask of selected points", (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 1)
+    cv2.putText(comparison, "Red: Projected Points", (20, 70), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1)
+    
     cv2.imshow("1x2 Comparison: Camera Mask (Left) vs Projected (Right)", comparison)
 
 def overlay_features(img, mask, color=(0, 255, 0)):
