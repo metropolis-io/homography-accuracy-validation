@@ -32,7 +32,7 @@ def calculate_chamfer_error(projected_points, sat_mask):
             
     return np.array(errors), np.array(valid_points)
 
-def stratify_by_distance(points_world, errors, extrinsics, bin_size=500, max_dist=10000):
+def stratify_by_distance(points_world, errors, extrinsics, bin_size=10, max_dist=10000):
     """
     Slice errors by distance in front of the camera.
     
