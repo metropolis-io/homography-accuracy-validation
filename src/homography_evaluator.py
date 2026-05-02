@@ -41,6 +41,9 @@ def stratify_by_distance(points_world, errors, extrinsics, bin_size=10, max_dist
     - Camera center in world coordinates is simply T (4th column of extrinsics).
     - Camera forward direction is the 3rd column of the rotation matrix R.
     """
+    if extrinsics is None:
+        return {}
+    
     R = extrinsics[:, :3]
     T = extrinsics[:, 3].flatten()
     

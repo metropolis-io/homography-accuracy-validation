@@ -17,13 +17,14 @@ def load_camera_params(json_path):
     homography = parse_matrix('homography')
     extrinsics = parse_matrix('extrinsics')
     image_size = parse_matrix('image-size')
+    print(image_size)
     
     return {
         'K': k_matrix,
         'dist': lens_coeffs,
         'H': homography,
         'RT': extrinsics,
-        'size': (int(image_size[0, 0]), int(image_size[1, 0])) if image_size is not None else None
+        'size': (int(image_size[0, 0]), int(image_size[0, 1])) if image_size is not None else None
     }
 
 def load_and_undistort(img_path, camera_params, do_undistort=True):
